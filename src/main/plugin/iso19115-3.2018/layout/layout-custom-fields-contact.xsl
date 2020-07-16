@@ -35,10 +35,12 @@
   <xsl:template mode="mode-iso19115-3.2018" match="*[cit:CI_Telephone]" priority="2000">
     <xsl:param name="schema" select="$schema" required="no"/>
     <xsl:param name="labels" select="$labels" required="no"/>
+    <xsl:param name="isDisabled" required="no" />
 
     <xsl:apply-templates mode="mode-iso19115-3.2018" select="*/cit:*">
       <xsl:with-param name="schema" select="$schema"/>
       <xsl:with-param name="labels" select="$labels"/>
+      <xsl:with-param name="isDisabled" select="$isDisabled" />
     </xsl:apply-templates>
   </xsl:template>
 
@@ -51,6 +53,9 @@
                 match="cit:number[parent::node()/name() = 'cit:CI_Telephone']">
     <xsl:param name="schema" select="$schema" required="no"/>
     <xsl:param name="labels" select="$labels" required="no"/>
+    <xsl:param name="isDisabled" required="no"/>
+    
+
 
     <xsl:variable name="labelConfig"
                   select="gn-fn-metadata:getLabel($schema, name(), $labels)"/>
@@ -73,7 +78,7 @@
         <xsl:call-template name="render-codelist-as-select">
           <xsl:with-param name="listOfValues" select="$codelist"/>
           <xsl:with-param name="lang" select="$lang"/>
-          <xsl:with-param name="isDisabled" select="ancestor-or-self::node()[@xlink:href]"/>
+          <xsl:with-param name="isDisabled" select="$isDisabled or ancestor-or-self::node()[@xlink:href]"/>
           <xsl:with-param name="elementRef" select="../cit:numberType/cit:CI_TelephoneTypeCode/gn:element/@ref"/>
           <xsl:with-param name="isRequired" select="true()"/>
           <xsl:with-param name="hidden" select="false()"/>
@@ -93,7 +98,7 @@
                type="tel"
                name="{concat('_', gco:CharacterString/gn:element/@ref)}"
                value="{normalize-space(gco:CharacterString)}">
-          <xsl:if test="ancestor-or-self::node()[@xlink:href]">
+          <xsl:if test="$isDisabled or ancestor-or-self::node()[@xlink:href]">
             <xsl:attribute name="disabled" select="'disabled'"/>
           </xsl:if>
         </input>
@@ -112,10 +117,12 @@
         </div>
       </div>
       <div class="col-sm-1 gn-control">
-        <xsl:call-template name="render-form-field-control-remove">
-          <xsl:with-param name="editInfo" select="../gn:element"/>
-          <xsl:with-param name="parentEditInfo" select="../../gn:element"/>
-        </xsl:call-template>
+        <xsl:if test="not($isDisabled)">
+          <xsl:call-template name="render-form-field-control-remove">
+            <xsl:with-param name="editInfo" select="../gn:element"/>
+            <xsl:with-param name="parentEditInfo" select="../../gn:element"/>
+          </xsl:call-template>
+        </xsl:if>
       </div>
     </div>
   </xsl:template>

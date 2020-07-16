@@ -43,11 +43,13 @@
     <xsl:param name="schema" select="$schema" required="no"/>
     <xsl:param name="labels" select="$labels" required="no"/>
     <xsl:param name="refToDelete" required="no"/>
+    <xsl:param name="isDisabled" required="no"/>
 
     <xsl:apply-templates mode="mode-iso19115-3.2018" select="*|@*">
       <xsl:with-param name="schema" select="$schema"/>
       <xsl:with-param name="labels" select="$labels"/>
       <xsl:with-param name="refToDelete" select="$refToDelete"/>
+      <xsl:with-param name="isDisabled" select="$isDisabled"/>
     </xsl:apply-templates>
   </xsl:template>
 
@@ -145,6 +147,7 @@
                         not(gco:CharacterString)]">
     <xsl:param name="schema" select="$schema" required="no"/>
     <xsl:param name="labels" select="$labels" required="no"/>
+    <xsl:param name="isDisabled" required="no"/>
 
     <xsl:variable name="xpath" select="gn-fn-metadata:getXPath(.)"/>
     <xsl:variable name="isoType" select="if (../@gco:isoType) then ../@gco:isoType else ''"/>
@@ -174,14 +177,16 @@
       <xsl:with-param name="errors" select="$errors"/>
       <xsl:with-param name="cls" select="local-name()"/>
       <xsl:with-param name="xpath" select="$xpath"/>
+      <xsl:with-param name="isDisabled" select="$isDisabled"/>
       <xsl:with-param name="attributesSnippet" select="$attributes"/>
       <xsl:with-param name="subTreeSnippet">
         <!-- Process child of those element. Propagate schema
-        and labels to all subchilds (eg. needed like iso19110 elements
+        and labels to all subchildren (eg. needed like iso19110 elements
         contains gmd:* child. -->
         <xsl:apply-templates mode="mode-iso19115-3.2018" select="*">
           <xsl:with-param name="schema" select="$schema"/>
           <xsl:with-param name="labels" select="$labels"/>
+          <xsl:with-param name="isDisabled" select="$isDisabled"/>
         </xsl:apply-templates>
       </xsl:with-param>
     </xsl:call-template>
@@ -484,6 +489,7 @@
     <xsl:param name="labels" select="$labels" required="no"/>
     <xsl:param name="codelists" select="$codelists" required="no"/>
     <xsl:param name="overrideLabel" select="''" required="no"/>
+    <xsl:param name="isDisabled" required="no"/>
 
     <xsl:variable name="elementName" select="name()"/>
     <xsl:variable name="xpath" select="gn-fn-metadata:getXPath(.)"/>
@@ -516,6 +522,7 @@
       <xsl:with-param name="listOfValues"
                       select="gn-fn-metadata:getCodeListValues($schema, name(*[@codeListValue]), $codelists, .)"/>
       <xsl:with-param name="isFirst" select="count(preceding-sibling::*[name() = $elementName]) = 0"/>
+      <xsl:with-param name="isDisabled" select="$isDisabled or count(ancestor-or-self::node()[@xlink:href]) > 0"/>
     </xsl:call-template>
   </xsl:template>
 
